@@ -165,14 +165,33 @@ class ComputeLoss:
     def __call__(self, p, targets, img=None, epoch=0):
         loss = torch.zeros(3, device=self.device)  # box, cls, dfl
         feats = p[1] if isinstance(p, tuple) else p
-        pred_distri, pred_scores = torch.cat([xi.view(feats[0].shape[0], self.no, -1) for xi in feats], 2).split(
+        
+        # --- FIX: Sanitize feats list ---
+        # If elements in feats are lists (from aux heads), extract the main tensor (index 0)
+        # This ensures all downstream code (like make_anchors) sees tensors, not lists.
+        clean_feats = []
+        for xi in feats:
+            if isinstance(xi, (list, tuple)):
+                clean_feats.append(xi[0])
+            else:
+                clean_feats.append(xi)
+        feats = clean_feats 
+        # -------------------------------
+
+        batch_size = feats[0].shape[0]
+
+        pred_distri, pred_scores = torch.cat([xi.view(batch_size, self.no, -1) for xi in feats], 2).split(
             (self.reg_max * 4, self.nc), 1)
+
         pred_scores = pred_scores.permute(0, 2, 1).contiguous()
         pred_distri = pred_distri.permute(0, 2, 1).contiguous()
 
         dtype = pred_scores.dtype
         batch_size, grid_size = pred_scores.shape[:2]
+        
+        # This line was failing before; now it works because feats[0] is guaranteed to be a tensor
         imgsz = torch.tensor(feats[0].shape[2:], device=self.device, dtype=dtype) * self.stride[0]  # image size (h,w)
+        
         anchor_points, stride_tensor = make_anchors(feats, self.stride, 0.5)
 
         # targets
