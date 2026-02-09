@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 1
+names: ['Black dIsk']
+
+roboflow:
+  workspace: default-eopfi
+  project: detect-black-disk
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/default-eopfi/detect-black-disk/dataset/1
