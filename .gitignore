@@ -1,0 +1,40 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Training outputs
+runs/
+wandb/
+
+# Model weights
+*.pt
+*.pth
+*.onnx
+*.tflite
+!yolov9-c.pt
+
+# Datasets
+datasets/
+data/images/
+data/labels/
+
+# Logs
+*.log
